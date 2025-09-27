@@ -1,41 +1,49 @@
 #include<iostream>
-#include<vector>
 #include<stack>
 #include<string>
-#include<math.h>
 using namespace std;
 
-int evaluation(vector<string>&expression){
-    stack<int>s;
-    for(int i=0;i<expression.size();i++){
-        if(expression[i]=="+"||expression[i]=="-"||expression[i]=="*"||expression[i]=="/"||expression[i]=="^"){
-            int a=s.top();
-            s.pop();
-            int b=s.top();
-            s.pop();
-            int c;
-            if(expression[i]=="+"){
-                s.push(a+b);
-            }else if(expression[i]=="-"){
-                s.push(b-a);
-            }else if(expression[i]=="*"){
-                s.push(b*a);
-            }else if(expression[i]=="^"){
-                s.push(pow(b,a));
-            }else{
-                s.push(b/a);
-            }
-        }else{
-            s.push(stoi(expression[i])); 
-        }
-        
+int precedance(char c){
+    if(c=='^'){
+        return 3;
+    }else if(c=='*'||c=='/'){
+        return 2;
+    }else if(c=='+'||c=='-'){
+        return 1;
     }
-    return s.top();
+    return 0;
 }
 
-
+string infixToPostfix(string infix){
+    string ans;
+    stack<char>s;
+    infix.push_back(')');
+    s.push('(');
+    for(int i=0;i<infix.length();i++){
+        char c=infix[i];
+            if((c>='a' && c<='z')||(c>='A' && c<='Z')||(c>='0'&&c<='9')){
+                ans.push_back(c);
+            }else if(c=='('){
+                s.push(c);
+            }else if(c=='+'||c=='-'||c=='*'||c=='/'||c=='^'){
+                while(precedance(s.top())>=precedance(c)){
+                    ans.push_back(s.top());
+                    s.pop();
+                }
+                s.push(c);
+            }else if(c==')'){
+                while(s.top()!='('){
+                    char op=s.top();
+                        ans.push_back(op);
+                        s.pop();
+                }
+                s.pop();
+            }
+    }
+    return ans;
+}
 int main(){
-    vector<string>expression={"4","2","-","3","^","3","*","8","2","-","+","5","/"};
-    cout<<"Answer for given postfix expression is:"<<evaluation(expression)<<endl;
+    string infix="((((4-2)^3)*3)+(8-2))/5";
+    cout<<"Answer is:"<<infixToPostfix(infix)<<endl;
     return 0;
 }
